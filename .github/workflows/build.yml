@@ -1,0 +1,31 @@
+name: Build Pufferfish
+on: [push, pull_request]
+
+jobs:
+    build:
+        # Only run on PRs if the source branch is on someone else's repo
+        if: ${{ github.event_name != 'pull_request' || github.repository != github.event.pull_request.head.repo.full_name }}
+        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                java: [17]
+            fail-fast: true
+        steps:
+            - uses: actions/checkout@v2.3.5
+            - name: JDK ${{ matrix.java }}
+              uses: actions/setup-java@v2.3.1
+              with:
+                  java-version: ${{ matrix.java }}
+                  cache: 'gradle'
+                  distribution: 'temurin'
+            - name: Patch and build
+              run: |
+                  git config --global user.email "no-reply@github.com"
+                  git config --global user.name "Github Actions"
+                  ./gradlew paperclip
+            - name: Archive artifacts
+              uses: actions/upload-artifact@v2
+              if: success()
+              with:
+                name: Pufferfish
+                path: build/libs
