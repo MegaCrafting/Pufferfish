@@ -22,6 +22,7 @@ jobs:
               run: |
                   git config --global user.email "no-reply@github.com"
                   git config --global user.name "Github Actions"
+                  ./gradlew applypatches
                   ./gradlew paperclip
             - name: Archive artifacts
               uses: actions/upload-artifact@v2
